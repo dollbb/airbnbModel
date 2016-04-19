@@ -28,17 +28,6 @@ summary(mfit.lm) # stars, reviews, and bathrooms don't seem to add much
 print(mfit.lm)
 plot(varImp(mfit.lm))
 
-## TODO: add this later for real test set:
-## predVals.lm <- predict(mfit.lm, testing)
-## tstVals.lm <- data.frame(obs=testing$price, pred=predVals.lm)
-
-## defaultSummary(tstVals.lm)
-
-## mean(abs(tstVals.lm$obs - tstVals.lm$pred))
-
-## lim <- c(min(dat$price)-10, max(dat$price)+10)
-## plot(tstVals.lm, xlim=lim, ylim=lim)
-## abline(0,1)
 
 #################
 ### model 1a  ###
@@ -100,12 +89,11 @@ abline(0,1)
 ################
 # random forest model 
 #500 trees, nodesize=5
-mtryGrid <- expand.grid(mtry=seq(1,10))
+mtry  <- expand.grid(mtry=seq(1,10))
 mfit.rf <- train(price ~  accommodates + bedrooms + roomType +  lat.az + long.az +
-                         propType.t + multi + city,
+                         propType.t + multi + city + stars + reviews +beds,
                  trControl=tc, data=dat, method="rf", importance = T,
-                  preProc = c("center", "scale"), tuneGrid=mtryGrid, ntree=1000)
-
+                  preProc = c("center", "scale"), tuneGrid=mtry, ntree=1000)
 
 print(mfit.rf)
 plot(mfit.rf) #best mtry=3
@@ -119,7 +107,6 @@ predVals.rf <- predict(mfit.rf, dat)
 # still underestimates high priced listings
 plot(dat$price, predVals.rf, xlim=lim, ylim=lim)
 abline(0,1)
-
 
 ######################################
 ## get testing data
